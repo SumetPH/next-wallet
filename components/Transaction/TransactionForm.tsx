@@ -12,6 +12,12 @@ import { AccountAll } from "@/app/api/account/accountAll/route";
 import { useForm, Controller } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import numeral from "numeral";
+import { wallet_category } from "@prisma/client";
+
+interface CategoryAllType {
+  cateIncome: wallet_category[];
+  cateExpense: wallet_category[];
+}
 
 type Props = {
   title: string;
@@ -34,6 +40,7 @@ export default function TransactionForm({ title }: Props) {
     defaultValues: {
       amount: 0,
       acc_id: "",
+      cate_id: "",
       dateTime: new Date(),
     },
   });
@@ -45,14 +52,29 @@ export default function TransactionForm({ title }: Props) {
         profile_id: 1,
       }),
   });
-  console.log(
-    "🚀 ~ file: TransactionForm.tsx:25 ~ TransactionForm ~ accountAll:"
-  );
+
+  const { data: categoryAll } = useQuery({
+    queryKey: ["categoryAll"],
+    queryFn: () =>
+      axios
+        .post<CategoryAllType>("/api/category/categoryAll", {
+          profile_id: 1,
+        })
+        .then((res) => {
+          if (title === "income") {
+            return res.data.cateIncome;
+          }
+          if (title === "expense") {
+            return res.data.cateExpense;
+          }
+        }),
+  });
 
   const submit = async (data: FormData) => {
     const res = await axios.post("/api/transaction/transactionCreate", {
+      profile_id: 1,
       acc_id: Number(data.acc_id),
-      trans_type_id: 1,
+      cate_id: Number(data.cate_id),
       trans_amount: data.amount,
       trans_date: data.dateTime.toISOString(),
       trans_note: data.note,
@@ -68,7 +90,7 @@ export default function TransactionForm({ title }: Props) {
       <div
         className={`
           grid grid-cols-6 py-3 px-1 text-white
-          ${title === "รายจ่าย" ? "bg-red-600" : "bg-green-600"}
+          ${title === "income" ? "bg-green-600" : "bg-red-600"}
         `}
       >
         <div className="col-span-1">
@@ -79,7 +101,9 @@ export default function TransactionForm({ title }: Props) {
           />
         </div>
         <div className="col-span-4">
-          <h1 className="text-center text-lg font-bold">{title}</h1>
+          <h1 className="text-center text-lg font-bold">
+            {title === "income" ? "รายรับ" : "รายจ่าย"}
+          </h1>
         </div>
         <div className="col-span-1 flex justify-end">
           <button type="submit">
@@ -115,24 +139,25 @@ export default function TransactionForm({ title }: Props) {
               <option value="" disabled>
                 เลือกบัญชี
               </option>
-              {accountAll &&
-                accountAll.data.map((account) => (
-                  <option key={account.acc_id} value={account.acc_id}>
-                    {account.acc_name}
-                    {" : "}
-                    {numeral(account.total).format("0,0.00")}
-                  </option>
-                ))}
+              {accountAll?.data.map((account) => (
+                <option key={account.acc_id} value={account.acc_id}>
+                  {account.acc_name}
+                  {" : "}
+                  {numeral(account.total).format("0,0.00")}
+                </option>
+              ))}
             </select>
           </section>
           <section className="flex justify-center py-4 border-l">
-            <select className="focus:outline-none">
-              <option value="" disabled defaultValue="">
+            <select {...register("cate_id")} className="focus:outline-none">
+              <option value="" disabled>
                 เลือกหมวดหมู่
               </option>
-              <option value="1">ใช้จ่าย</option>
-              <option value="2">ใช้จ่าย</option>
-              <option value="3">ใช้จ่าย</option>
+              {categoryAll?.map((category) => (
+                <option key={category.cate_id} value={category.cate_id}>
+                  {category.cate_name}
+                </option>
+              ))}
             </select>
           </section>
         </div>

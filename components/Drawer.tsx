@@ -1,3 +1,6 @@
+import { updateDrawer } from "@/redux/drawerSlice";
+import { RootState } from "@/redux/store";
+// import { useAppDispatch } from "@/redux/store";
 import { useDrawerStore } from "@/store/useDrawerStore";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef } from "react";
@@ -10,18 +13,25 @@ import {
   MdPerson,
   MdSettings,
 } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function DrawerComp() {
-  const { drawer, setDrawer } = useDrawerStore();
+  // const { drawer, setDrawer } = useDrawerStore();
+  const drawerStatus = useSelector(
+    (state: RootState) => state.drawer.drawerStatus
+  );
+  const dispatch = useDispatch();
   const router = useRouter();
 
   const closeDrawer = () => {
-    setDrawer(false);
+    // setDrawer(false);
+    dispatch(updateDrawer(false));
   };
 
   const changeRoute = (path: string) => {
     router.push(path);
-    setDrawer(false);
+    // setDrawer(false);
+    dispatch(updateDrawer(false));
   };
 
   return (
@@ -32,7 +42,7 @@ export default function DrawerComp() {
         overflow-hidden
         transition duration-200
         z-50
-        ${drawer ? "translate-x-0" : "-translate-x-full"}
+        ${drawerStatus ? "translate-x-0" : "-translate-x-full"}
       `}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -45,7 +55,7 @@ export default function DrawerComp() {
         <ul>
           <li
             className="flex items-center px-3 py-2 hover:bg-sky-700 cursor-pointer"
-            onClick={() => changeRoute("/home")}
+            onClick={() => changeRoute("/transaction")}
           >
             <MdHome size={30} />
             <span className="ml-2">หน้าหลัก</span>

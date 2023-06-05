@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
 
-export default function HomeFooter() {
+type Props = {
+  totalIncome: string;
+  totalExpense: string;
+};
+
+export default function HomeFooter({
+  totalIncome = "0.00",
+  totalExpense = "0.00",
+}: Props) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -68,8 +76,8 @@ export default function HomeFooter() {
         </div>
       </div>
       <div className="grid grid-cols-2 px-2 pb-6 bg-sky-800 text-white">
-        <div className="text-start">0.00 บาท</div>
-        <div className="text-end">3,500 บาท</div>
+        <div className="text-start">{totalIncome} บาท</div>
+        <div className="text-end">{totalExpense} บาท</div>
       </div>
     </div>
   );

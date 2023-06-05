@@ -2,15 +2,16 @@ import { prisma } from "@/prisma/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-export const transactionCreate = z.object({
-  acc_id: z.number(),
-  trans_type_id: z.number(),
-  trans_amount: z.number(),
-  trans_date: z.string().datetime(),
-  trans_note: z.string().optional(),
-});
-
 export async function POST(req: Request) {
+  const transactionCreate = z.object({
+    profile_id: z.number(),
+    acc_id: z.number(),
+    cate_id: z.number(),
+    trans_amount: z.number(),
+    trans_date: z.string().datetime(),
+    trans_note: z.string().optional(),
+  });
+
   try {
     const body = transactionCreate.parse(await req.json());
 
